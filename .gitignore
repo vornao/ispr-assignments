@@ -1,0 +1,18 @@
+.DS_Store
+
+# Ignore all .pyc files
+global-exclude *.pyc
+
+# Ignore all .pyo files
+global-exclude *.pyo
+
+isprenv
+isprenv/
+
+isprpyenv
+isprpyenv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+images/
