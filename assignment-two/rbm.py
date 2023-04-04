@@ -24,12 +24,11 @@ class RestrictedBoltzmannMachine:
         Initialize the parameters of the RBM
         :param visible_nodes: number of visible nodes
         :param hidden_nodes: number of hidden nodes
+        
         """
 
         self. visible_nodes = visible_nodes
         self.hidden_nodes = hidden_nodes
-
-        # random initializing weights
         self.weights = np.random.normal(0.0, pow(self.hidden_nodes, -0.5), (self.hidden_nodes, self.visible_nodes))
 
         # initializing bias
@@ -39,7 +38,15 @@ class RestrictedBoltzmannMachine:
         self.errors = np.array([])
 
     def train(self, dataset, epochs, learning_rate):
-        
+        """
+        Train the RBM
+        TODO: implement the mini-batch version of the algorithm.
+        :param dataset: training dataset
+        :param epochs: number of epochs
+        :param learning_rate: learning rate
+        :return: None
+        """
+
         for epoch in range(epochs):
             self.epoch_errors = []
             for data in dataset:
@@ -76,10 +83,10 @@ class RestrictedBoltzmannMachine:
         
         
 
-    def reconstruct(self, data):
+    def reconstruct(self, data) -> np.ndarray:
         """
         Reconstruct the input data
-        :param data: input data (the visible units)
+        :param data: input data
         :return: reconstructed data
         """
         hidden_prob_given_v = self.sigmoid(data.dot(self.weights.T) + self.bias_hidden)
@@ -90,8 +97,4 @@ class RestrictedBoltzmannMachine:
     def sigmoid(self, x):
         # sigmoid activation function
         return 1.0 / (1.0 + np.exp(-x))
-
-
-
-
-
+        
