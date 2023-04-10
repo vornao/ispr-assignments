@@ -75,7 +75,7 @@ class RestrictedBoltzmannMachine:
                 )
 
                 # using states because [Hinton's paper, section 3.4]
-                recon_states = recon_probs > np.random.rand(self.visible_nodes)
+                recon_states = recon_probs
 
                 # getting probabilities of the hidden units given the reconstruction
                 hidden_prob_given_rec = self.sigmoid(
