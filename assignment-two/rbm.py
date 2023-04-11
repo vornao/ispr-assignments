@@ -46,8 +46,8 @@ class RestrictedBoltzmannMachine:
 
     def train(self, dataset, epochs, learning_rate):
         """
-        Train the RBM
-        TODO: implement the mini-batch version of the algorithm.
+        Train the RBM, using CD-1 algorithm.
+        TODO: implement the batch version of the algorithm.
         :param dataset: training dataset
         :param epochs: number of epochs
         :param learning_rate: learning rate
@@ -66,6 +66,9 @@ class RestrictedBoltzmannMachine:
                 wake = np.dot(hidden_prob_given_v[:, None], data[:, None].T)
 
                 # now we are giving a state to our hidden units based on the training sample.
+                # sampling from distributions, see Hinton's paper, sec 3.4.
+                # When the hidden units are being driven by data, always use stochastic binary states. 
+                # When they are being drivenby reconstructions, always use probabilities without sampling.
                 hidden_states = hidden_prob_given_v > np.random.rand(self.hidden_nodes)
 
                 # given these new hidden units states, try to reconstruct data probabilities,
@@ -74,13 +77,16 @@ class RestrictedBoltzmannMachine:
                     hidden_states.dot(self.weights) + self.bias_visible
                 )
 
-                # using states because [Hinton's paper, section 3.4]
+                # not using states because
+                # "For the last update of the hidden units, it is silly to use stochastic binary states 
+                # because nothing depends on which state is chosen." [Hinton's paper, section 3.1, 3.4]
                 recon_states = recon_probs
 
                 # getting probabilities of the hidden units given the reconstruction
                 hidden_prob_given_rec = self.sigmoid(
                     recon_states.dot(self.weights.T) + self.bias_hidden
                 )
+
                 dream = np.dot(
                     hidden_prob_given_rec[:, None],
                     recon_states[:, None].T,
@@ -99,28 +105,22 @@ class RestrictedBoltzmannMachine:
 
             self.errors = np.append(self.errors, np.mean(self.epoch_errors))
 
-    def reconstruct(self, data) -> np.ndarray:
+    def reconstruct(self, data, sample=True) -> np.ndarray:
         """
         Reconstruct the input data
         :param data: input data
+        :param sample: setting flag to true will return sampled states instead of probabilities.
         :return: reconstructed data
         """
         hidden_prob_given_v = self.sigmoid(data.dot(self.weights.T) + self.bias_hidden)
         recon_probs = self.sigmoid(
             hidden_prob_given_v.dot(self.weights) + self.bias_visible
         )
+        if sample:
+            return recon_probs > np.random.rand(self.hidden_nodes)
+
         return recon_probs
 
     def sigmoid(self, x):
         # sigmoid activation function
         return 1.0 / (1.0 + np.exp(-x))
-
-    def _sample_visible(self, hidden_state):
-        # sampling the visible units given the hidden state
-        probs = self.sigmoid(hidden_state.dot(self.weights) + self.bias_visible)
-        return probs > np.random.rand(self.visible_nodes)
-
-    def _sample_hidden(self, visible_state):
-        # sampling the hidden units given the visible state
-        probs = self.sigmoid(visible_state.dot(self.weights.T) + self.bias_hidden)
-        return probs > np.random.rand(self.hidden_nodes)
