@@ -96,7 +96,7 @@ class RestrictedBoltzmannMachine:
                 delta_bias_hidden = hidden_prob_given_v - hidden_prob_given_rec
                 delta_bias_visible = data - recon_states
 
-                error = np.sum((data - recon_states) ** 2)
+                error = np.abs(data - recon_states)
 
                 self.weights += learning_rate * delta_w
                 self.bias_hidden += learning_rate * delta_bias_hidden
@@ -117,7 +117,7 @@ class RestrictedBoltzmannMachine:
             hidden_prob_given_v.dot(self.weights) + self.bias_visible
         )
         if sample:
-            return recon_probs > np.random.rand(self.hidden_nodes)
+            return recon_probs > np.random.rand(self.visible_nodes)
 
         return recon_probs
 
