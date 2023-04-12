@@ -16,8 +16,6 @@ but you are free to use library functions for the rest (e.g. image loading and m
 """
 
 import numpy as np
-from sklearn.datasets import load_digits
-
 
 class RestrictedBoltzmannMachine:
     """
@@ -47,7 +45,6 @@ class RestrictedBoltzmannMachine:
     def train(self, dataset, epochs, learning_rate):
         """
         Train the RBM, using CD-1 algorithm.
-        TODO: implement the batch version of the algorithm.
         :param dataset: training dataset
         :param epochs: number of epochs
         :param learning_rate: learning rate
