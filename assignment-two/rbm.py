@@ -55,7 +55,7 @@ class RestrictedBoltzmannMachine:
                 # then sample visible states.
                 recon_probs = self.sigmoid(
                     hidden_states.dot(self.weights) + self.bias_visible
-                )
+                ) 
 
                 # not using states because
                 # "For the last update of the hidden units, it is silly to use stochastic binary states

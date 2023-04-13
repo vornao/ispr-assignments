@@ -1,14 +1,25 @@
 .DS_Store
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dylib
+*.egg-info
+*.egg
+*.log
+*.swp
+*.swo
+*.swn
 
 # Ignore all .pyc files
 global-exclude *.pyc
 
 # Ignore all .pyo files
 global-exclude *.pyo
-
 isprenv
 isprenv/
-
+venv/
+venv
 isprpyenv
 isprpyenv/
 
