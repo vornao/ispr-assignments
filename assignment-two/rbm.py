@@ -1,20 +1,3 @@
-"""
-Assignment 3
-
-Implement from scratch an RBM and apply it to DSET3. 
-The RBM should be implemented fully by you (both CD-1 training and inference steps) 
-but you are free to use library functions for the rest (e.g. image loading and management, etc.).
-
-1. Train an RBM with a number of hidden neurons selected by you 
-   (single layer) on the MNIST data (use the training set split provided by the website).
-2. Use the trained RBM to encode a selection of test images (e.g. using one per digit type) 
-   using the corresponding activation of the hidden neurons.
-3. Reconstruct the original test images from their hidden encoding 
-   and confront the reconstructions with the original image 
-   (use a suitable quantitative metric to assess the reconstraction quality.
-   Also choose few examples to confront visually).
-"""
-
 import numpy as np
 
 class RestrictedBoltzmannMachine:
@@ -64,7 +47,7 @@ class RestrictedBoltzmannMachine:
 
                 # now we are giving a state to our hidden units based on the training sample.
                 # sampling from distributions, see Hinton's paper, sec 3.4.
-                # When the hidden units are being driven by data, always use stochastic binary states. 
+                # When the hidden units are being driven by data, always use stochastic binary states.
                 # When they are being drivenby reconstructions, always use probabilities without sampling.
                 hidden_states = hidden_prob_given_v > np.random.rand(self.hidden_nodes)
 
@@ -75,7 +58,7 @@ class RestrictedBoltzmannMachine:
                 )
 
                 # not using states because
-                # "For the last update of the hidden units, it is silly to use stochastic binary states 
+                # "For the last update of the hidden units, it is silly to use stochastic binary states
                 # because nothing depends on which state is chosen." [Hinton's paper, section 3.1, 3.4]
                 recon_states = recon_probs
 
