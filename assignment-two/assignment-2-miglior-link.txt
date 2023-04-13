@@ -1,4 +1,4 @@
 https://colab.research.google.com/drive/1YsEaU-bWjDzhWaMKOr8Dn9_BLNBxIxap?usp=sharing
 
 Also available at: 
-https://github.com/vornao/ispr-assignments/blob/main/assignment-two/notebook.ipynb
+https://github.com/vornao/ispr-assignments/blob/main/assignment-two/ispr-assignment-2.3.ipynb
