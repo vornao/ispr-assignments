@@ -104,3 +104,5 @@ class RestrictedBoltzmannMachine:
     def sigmoid(self, x):
         # sigmoid activation function
         return 1.0 / (1.0 + np.exp(-x))
+
+
