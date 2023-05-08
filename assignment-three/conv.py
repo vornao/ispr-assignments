@@ -5,6 +5,10 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 
+# import tqdm auto progress bar
+from tqdm.auto import tqdm
+
+
 VAL_STRING_TEMPLATE = \
     "Epoch {epoch:4d} \
     | Training Loss: {train_loss:3f} \
@@ -18,47 +22,6 @@ TR_STRING_TEMPLATE = \
     | Training Loss: {train_loss:3f}\
     | Training Accuracy: {train_acc:3f}"
 
-
-class ConvNN(nn.Module):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.conv1 = nn.Conv2d(3, 6, 5)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16*5*5, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 16)
-        self.fc4 = nn.Linear(16, 10)
-
-    
-    def convLayer(self, x):
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = self.pool(x)
-        x = self.conv2(x)
-        x = F.relu(x)
-        x = self.pool(x)
-        x = torch.flatten(x, 1)
-        return x
-    
-    def mlpLayer(self, x):
-        # sequential
-        x = self.fc1(x)
-        x = F.relu(x)
-        x = self.fc2(x)
-        x = F.relu(x)
-        x = self.fc3(x)
-        x = F.relu(x)
-        x = self.fc4(x)
-        return x
-    
-
-    def forward(self, x):
-        x = self.convLayer(x)
-        x = self.mlpLayer(x)
-        return x
-    
 
 def train(model, device, train_loader, optimizer, criterion, epoch, *args, **kwargs):
     """
@@ -103,16 +66,18 @@ def train(model, device, train_loader, optimizer, criterion, epoch, *args, **kwa
     train_loss = epoch_loss/len(train_loader)
     train_acc = correct/len(train_loader.dataset)
 
+    if epoch % 1 == 0:
+        if val_loader is not None :
+                val_loss, val_acc = test(model, device, val_loader, criterion, epoch)
+                print(VAL_STRING_TEMPLATE.format(epoch=epoch, train_loss=train_loss, train_acc=train_acc, val_loss=val_loss, val_acc=val_acc))
+        else:
+            print(TR_STRING_TEMPLATE.format(epoch=epoch, train_loss=train_loss, train_acc=train_acc))
+  
     if val_loader is not None:
-            val_loss, val_acc = test(model, device, val_loader, criterion, epoch)
-            print(VAL_STRING_TEMPLATE.format(epoch=epoch, train_loss=train_loss, train_acc=train_acc, val_loss=val_loss, val_acc=val_acc))
-            return {'epoch':epoch, "train_loss": train_loss, "train_acc": train_acc, "val_loss": val_loss, "val_acc": val_acc}
-
+        val_loss, val_acc = test(model, device, val_loader, criterion, epoch)
+        return {'epoch':epoch, "train_loss": train_loss, "train_acc": train_acc, "val_loss": val_loss, "val_acc": val_acc}
     else:
-        print(TR_STRING_TEMPLATE.format(epoch=epoch, train_loss=train_loss, train_acc=train_acc))
         return {'epoch':epoch, "train_loss": train_loss, "train_acc": train_acc}
-
-
 
 def test(model, device, test_loader, criterion, epoch, verbose=False):
     """
