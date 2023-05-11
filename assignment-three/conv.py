@@ -9,16 +9,14 @@ import torchvision.transforms as transforms
 from tqdm.auto import tqdm
 
 
-VAL_STRING_TEMPLATE = \
-    "Epoch {epoch:4d} \
+VAL_STRING_TEMPLATE = "Epoch {epoch:4d} \
     | Training Loss: {train_loss:3f} \
     | Training Accuracy: {train_acc:3f} \
     | Validation Loss: {val_loss:3f} \
     | Validation Accuracy: {val_acc:3f}"
 
 
-TR_STRING_TEMPLATE = \
-    "Epoch {epoch:4d}\
+TR_STRING_TEMPLATE = "Epoch {epoch:4d}\
     | Training Loss: {train_loss:3f}\
     | Training Accuracy: {train_acc:3f}"
 
@@ -47,9 +45,7 @@ def train(model, device, train_loader, optimizer, criterion, epoch, *args, **kwa
     # take validation set from kwargs
     val_loader = kwargs.get("val_loader", None)
 
-
     for d in train_loader:
-
         input, label = d
         input, label = input.to(device), label.to(device)
 
@@ -63,21 +59,40 @@ def train(model, device, train_loader, optimizer, criterion, epoch, *args, **kwa
         pred = output.argmax(dim=1, keepdim=True)
         correct += pred.eq(label.view_as(pred)).sum().item()
 
-    train_loss = epoch_loss/len(train_loader)
-    train_acc = correct/len(train_loader.dataset)
+    train_loss = epoch_loss / len(train_loader)
+    train_acc = correct / len(train_loader.dataset)
 
     if epoch % 1 == 0:
-        if val_loader is not None :
-                val_loss, val_acc = test(model, device, val_loader, criterion, epoch)
-                print(VAL_STRING_TEMPLATE.format(epoch=epoch, train_loss=train_loss, train_acc=train_acc, val_loss=val_loss, val_acc=val_acc))
+        if val_loader is not None:
+            val_loss, val_acc = test(model, device, val_loader, criterion, epoch)
+            print(
+                VAL_STRING_TEMPLATE.format(
+                    epoch=epoch,
+                    train_loss=train_loss,
+                    train_acc=train_acc,
+                    val_loss=val_loss,
+                    val_acc=val_acc,
+                )
+            )
         else:
-            print(TR_STRING_TEMPLATE.format(epoch=epoch, train_loss=train_loss, train_acc=train_acc))
-  
+            print(
+                TR_STRING_TEMPLATE.format(
+                    epoch=epoch, train_loss=train_loss, train_acc=train_acc
+                )
+            )
+
     if val_loader is not None:
         val_loss, val_acc = test(model, device, val_loader, criterion, epoch)
-        return {'epoch':epoch, "train_loss": train_loss, "train_acc": train_acc, "val_loss": val_loss, "val_acc": val_acc}
+        return {
+            "epoch": epoch,
+            "train_loss": train_loss,
+            "train_acc": train_acc,
+            "val_loss": val_loss,
+            "val_acc": val_acc,
+        }
     else:
-        return {'epoch':epoch, "train_loss": train_loss, "train_acc": train_acc}
+        return {"epoch": epoch, "train_loss": train_loss, "train_acc": train_acc}
+
 
 def test(model, device, test_loader, criterion, epoch, verbose=False):
     """
@@ -90,13 +105,12 @@ def test(model, device, test_loader, criterion, epoch, verbose=False):
 
     :return: the loss and accuracy
     """
-    
+
     model.eval()
     epoch_loss = 0
     correct = 0
     with torch.no_grad():
         for i, d in enumerate(test_loader):
-
             input, label = d
             input, label = input.to(device), label.to(device)
 
@@ -107,9 +121,12 @@ def test(model, device, test_loader, criterion, epoch, verbose=False):
             correct += pred.eq(label.view_as(pred)).sum().item()
 
     if verbose:
-        print(f"Epoch {epoch} | Test Loss: {epoch_loss/len(test_loader)} | Test Accuracy: {correct/len(test_loader.dataset)}")
+        print(
+            f"Epoch {epoch} | Test Loss: {epoch_loss/len(test_loader)} | Test Accuracy: {correct/len(test_loader.dataset)}"
+        )
 
-    return epoch_loss/len(test_loader), correct/len(test_loader.dataset)
+    return epoch_loss / len(test_loader), correct / len(test_loader.dataset)
+
 
 class BlockCNN(nn.Module):
     # define sequential model
@@ -117,17 +134,17 @@ class BlockCNN(nn.Module):
         super(BlockCNN, self).__init__()
 
         # first convolutional layers
-        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)              # padding to keep size
-        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)             
-        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)            
-        self.conv4 = nn.Conv2d(128, 256, 3)                      # no padding
+        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)  # padding to keep size
+        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
+        self.conv4 = nn.Conv2d(128, 256, 3)  # no padding
         # MLP classifier
         self.fc1 = nn.Linear(256, 128)
         self.fc2 = nn.Linear(128, 10)
 
         self.softmax = nn.LogSoftmax(dim=1)
         self.relu = nn.ReLU()
-        
+
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(64)
         self.bn3 = nn.BatchNorm2d(128)
@@ -137,7 +154,6 @@ class BlockCNN(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
 
     def forward(self, x):
-
         # first block
         x = self.relu(self.bn1(self.conv1(x)))
         x = self.dropout(self.pool(x))
@@ -153,7 +169,7 @@ class BlockCNN(nn.Module):
         # fourth block
         x = self.relu(self.bn4(self.conv4(x)))
         x = self.dropout(self.pool(x))
-        
+
         x = torch.flatten(x, 1)
         x = self.relu(self.fc1(x))
         x = self.softmax(self.fc2(x))
